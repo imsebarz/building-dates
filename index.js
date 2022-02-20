@@ -1,4 +1,4 @@
-const Apartments = [202, 301, 201, 302];
+const Apartments = [201, 302, 202, 301];
 const monthNames = [
   "Enero",
   "Febrero",
@@ -13,7 +13,7 @@ const monthNames = [
   "Noviembre",
   "Diciembre",
 ];
-const dates = getSundaysFrom(2020, 8, 21);
+const dates = getSundaysFrom(2021, 4, 20);
 const timesApartments = Math.floor(dates.length / 9);
 const totalApartments = new Array(timesApartments).fill(Apartments).flat();
 const list = document.querySelector(".list");
@@ -39,7 +39,7 @@ function getSundaysFrom(year, month, day) {
     date.setDate(date.getDate() + 1);
   }
   var days = [];
-  while (date.getFullYear() < 2022) {
+  while (date.getFullYear() < 2023) {
     var m = date.getMonth();
     var d = date.getDate();
     days.push(
