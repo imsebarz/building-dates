@@ -1,4 +1,4 @@
-const Apartments = [201, 302, 202, 301];
+const Apartments = [301, 201, 302, 202];
 const monthNames = [
   "Enero",
   "Febrero",
@@ -13,7 +13,7 @@ const monthNames = [
   "Noviembre",
   "Diciembre",
 ];
-const dates = getSundaysFrom(2021, 4, 20);
+const dates = getSundaysFrom(2022, 4, 5);
 const timesApartments = Math.floor(dates.length / 9);
 const totalApartments = new Array(timesApartments).fill(Apartments).flat();
 const list = document.querySelector(".list");
