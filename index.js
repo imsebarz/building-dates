@@ -1,55 +1,56 @@
-const Apartments = [301, 201, 302, 202];
-const monthNames = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-const dates = getSundaysFrom(2022, 4, 5);
-const timesApartments = Math.floor(dates.length / 9);
-const totalApartments = new Array(timesApartments).fill(Apartments).flat();
-const list = document.querySelector(".list");
+class Apartments {
+  constructor() {
+    // Initialize the array of apartment numbers
+    this.apartments = [202, 301, 201, 302];
+    // Set the date formatting options
+    this.options = {year: "numeric", month: "long", day: "numeric", hour12:"false"};
+  }
 
-const zip = (arr1, arr2) =>
-  arr1.map((index1, index2) => [index1, arr2[index2]]);
+  getSundaysFrom(year, month, day, to) {
+    // Create a date object starting from the specified year, month, and day
+    let date = new Date(year, month - 1, day);
+    // Move the date forward until it reaches a Sunday
+    while (date.getDay() !== 0) {
+      date.setDate(date.getDate() + 1);
+    }
+    // Create an array to store the Sundays
+    let days = [];
+    // Add Sundays to the array until the specified ending year is reached
+    while (date.getFullYear() < to) {
+      days.push(date.toLocaleDateString("es", this.options));
+      date.setDate(date.getDate() + 7);
+    }
+    // Return the array of Sundays
+    return days;
+  }
 
-const relations = zip(totalApartments, dates);
+  getRelations() {
+    // Get the list of Sundays between the specified date and the specified ending year
+    const dates = this.getSundaysFrom(2022, 10, 22, 2024);
+    // Flatten the array of apartments into a single array with the same length as the dates array
+    const totalApartments = new Array(dates.length).fill(this.apartments).flat();
+    // Return an array of arrays, where each sub-array contains an apartment number and a date
+    return dates.map((date, index) => [totalApartments[index], date]);
+  }
+}
+// Create a new Apartments object and get its relations
+const relations = new Apartments().getRelations();
 
-for (let index = 0; index < relations.length; index++) {
-  let element = relations[index];
-  let li = document.createElement("li");
-  let span = document.createElement("span");
-  span.textContent = `${relations[index][0]}`;
-  li.appendChild(span);
-  li.appendChild(document.createTextNode(` - ${relations[index][1]}`));
-  list.appendChild(li);
+// Function to render the relations as a list
+function renderRelations(relations) {
+  // Get a reference to the .list element in the HTML document
+  const list = document.querySelector(".list");
+
+  // Iterate over the relations and create a list item for each one
+  relations.forEach((relation) => {
+    let li = document.createElement("li");
+    let span = document.createElement("span");
+    span.textContent = `${relation[0]}`;
+    li.appendChild(span);
+    li.appendChild(document.createTextNode(` - ${relation[1]}`));
+    list.appendChild(li);
+  });
 }
 
-function getSundaysFrom(year, month, day) {
-  var date = new Date(year, month, day);
-  while (date.getDay() != 0) {
-    date.setDate(date.getDate() + 1);
-  }
-  var days = [];
-  while (date.getFullYear() < 2023) {
-    var m = date.getMonth();
-    var d = date.getDate();
-    days.push(
-      (d < 10 ? "0" + d : d) +
-        " de " +
-        monthNames[m] +
-        " de " +
-        date.getFullYear()
-    );
-    date.setDate(date.getDate() + 7);
-  }
-  return days;
-}
+// Render the relations
+renderRelations(relations);
