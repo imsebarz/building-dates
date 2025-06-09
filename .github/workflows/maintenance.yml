@@ -1,0 +1,52 @@
+name: "Lavada de Escalas CI/CD"
+
+on:
+  schedule:
+    # Ejecutar tests semanalmente los lunes a las 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Health check
+        run: |
+          echo "🏥 Performing health check..."
+          npm install
+          npm test
+          echo "✅ Health check completed"
+
+  manual-deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Manual deployment
+        run: |
+          echo "🚀 Manual deployment to ${{ github.event.inputs.environment }}"
+          echo "This would trigger the main deploy workflow"

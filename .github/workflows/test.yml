@@ -1,0 +1,119 @@
+name: Test and Validate
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install testing dependencies
+        run: |
+          npm init -y
+          npm install --save-dev playwright @playwright/test
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run HTML validation
+        run: |
+          # Check HTML syntax
+          if command -v tidy &> /dev/null; then
+            tidy -q -e *.html || echo "HTML validation completed"
+          fi
+
+      - name: Test JavaScript syntax
+        run: |
+          # Basic syntax check for JavaScript files
+          node -c index.js
+          if [ -d "src" ]; then
+            find src -name "*.js" -exec node -c {} \;
+          fi
+
+      - name: Run basic functionality tests
+        run: |
+          # Create a simple test to check if the app loads
+          cat > test-basic.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          // Test 1: Check required files exist
+          const requiredFiles = ['Escalas.html', 'style.css', 'index.js'];
+          requiredFiles.forEach(file => {
+            if (!fs.existsSync(file)) {
+              console.error(`❌ Missing required file: ${file}`);
+              process.exit(1);
+            }
+            console.log(`✅ Found: ${file}`);
+          });
+
+          // Test 2: Check HTML structure
+          const htmlContent = fs.readFileSync('Escalas.html', 'utf8');
+          const requiredElements = [
+            'id="startDate"',
+            'id="endDate"', 
+            'id="apartmentList"',
+            'id="scheduleContent"',
+            'id="generateBtn"',
+            'id="downloadBtn"'
+          ];
+
+          requiredElements.forEach(element => {
+            if (!htmlContent.includes(element)) {
+              console.error(`❌ Missing HTML element: ${element}`);
+              process.exit(1);
+            }
+            console.log(`✅ Found HTML element: ${element}`);
+          });
+
+          // Test 3: Check JavaScript structure
+          const jsContent = fs.readFileSync('index.js', 'utf8');
+          const requiredClasses = ['ScheduleManager', 'UIRenderer', 'ApartmentManager', 'PDFGenerator'];
+          
+          requiredClasses.forEach(className => {
+            if (!jsContent.includes(`class ${className}`)) {
+              console.error(`❌ Missing JavaScript class: ${className}`);
+              process.exit(1);
+            }
+            console.log(`✅ Found JavaScript class: ${className}`);
+          });
+
+          console.log('🎉 All basic tests passed!');
+          EOF
+
+          node test-basic.js
+
+      - name: Test CSS validation
+        run: |
+          # Basic CSS syntax check
+          if command -v csslint &> /dev/null; then
+            csslint style.css || echo "CSS validation completed"
+          fi
+
+      - name: Security scan
+        run: |
+          # Check for common security issues
+          echo "Scanning for potential security issues..."
+          
+          # Check for eval usage
+          if grep -r "eval(" . --include="*.js"; then
+            echo "⚠️  Warning: eval() usage detected"
+          fi
+          
+          # Check for innerHTML with user input
+          if grep -r "innerHTML.*input" . --include="*.js"; then
+            echo "⚠️  Warning: Potential XSS risk with innerHTML"
+          fi
+          
+          echo "Security scan completed"

@@ -4,16 +4,190 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./style.css" />
+    <!-- Add Font Awesome for better icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <title>Escalas</title>
   </head>
   <body>
-    <h1>LAVADA DE ESCALAS</h1>
-    <div class="content">
-      <ul class="list"></ul>
+    <div class="app-container">
+      <!-- Main Header -->
+      <header class="app-header">
+        <h1>LAVADA DE ESCALAS</h1>
+      </header>
+
+      <!-- Main Content Area -->
+      <div class="main-content">
+        <!-- Configuration Panel (Left Side) -->
+        <aside class="config-panel">
+          <div class="config-header">
+            <h3><i class="fas fa-cog"></i> Configuración</h3>
+          </div>
+          
+          <div class="config-content">
+            <div class="config-section">
+              <h4><i class="fas fa-calendar-alt"></i> Fechas</h4>
+              <div class="date-controls">
+                <div class="control-group">
+                  <label for="startDate">Fecha de inicio:</label>
+                  <input type="date" id="startDate" value="2025-06-15">
+                </div>
+                
+                <div class="control-group">
+                  <label for="endDate">Fecha final:</label>
+                  <input type="date" id="endDate" value="2026-06-01">
+                </div>
+              </div>
+            </div>
+
+            <div class="config-section">
+              <h4><i class="fas fa-home"></i> Apartamentos y Orden</h4>
+              <div class="apartment-ordering-help">
+                <i class="fas fa-info-circle"></i>
+                <span>Arrastra los apartamentos para cambiar el orden, o usa los botones</span>
+              </div>
+              <div class="apartment-list" id="apartmentList">
+                <div class="apartment-item" data-apt="202" draggable="true">
+                  <div class="drag-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
+                  <div class="apartment-checkbox">
+                    <input type="checkbox" value="202" checked id="apt-202">
+                    <label for="apt-202">
+                      <i class="fas fa-home"></i>
+                      Apartamento 202
+                    </label>
+                  </div>
+                  <div class="order-controls">
+                    <button type="button" class="order-btn up" data-direction="up" title="Mover arriba">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="order-btn down" data-direction="down" title="Mover abajo">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="position-indicator">1</div>
+                </div>
+                <div class="apartment-item" data-apt="301" draggable="true">
+                  <div class="drag-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
+                  <div class="apartment-checkbox">
+                    <input type="checkbox" value="301" checked id="apt-301">
+                    <label for="apt-301">
+                      <i class="fas fa-home"></i>
+                      Apartamento 301
+                    </label>
+                  </div>
+                  <div class="order-controls">
+                    <button type="button" class="order-btn up" data-direction="up" title="Mover arriba">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="order-btn down" data-direction="down" title="Mover abajo">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="position-indicator">2</div>
+                </div>
+                <div class="apartment-item" data-apt="201" draggable="true">
+                  <div class="drag-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
+                  <div class="apartment-checkbox">
+                    <input type="checkbox" value="201" checked id="apt-201">
+                    <label for="apt-201">
+                      <i class="fas fa-home"></i>
+                      Apartamento 201
+                    </label>
+                  </div>
+                  <div class="order-controls">
+                    <button type="button" class="order-btn up" data-direction="up" title="Mover arriba">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="order-btn down" data-direction="down" title="Mover abajo">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="position-indicator">3</div>
+                </div>
+                <div class="apartment-item" data-apt="302" draggable="true">
+                  <div class="drag-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
+                  <div class="apartment-checkbox">
+                    <input type="checkbox" value="302" checked id="apt-302">
+                    <label for="apt-302">
+                      <i class="fas fa-home"></i>
+                      Apartamento 302
+                    </label>
+                  </div>
+                  <div class="order-controls">
+                    <button type="button" class="order-btn up" data-direction="up" title="Mover arriba">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="order-btn down" data-direction="down" title="Mover abajo">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="position-indicator">4</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="config-section">
+              <h4><i class="fas fa-tools"></i> Acciones</h4>
+              <div class="action-buttons">
+                <button id="generateBtn" class="btn-primary">
+                  <i class="fas fa-sync-alt"></i>
+                  Actualizar Escalas
+                </button>
+                <button id="downloadBtn" class="btn-secondary">
+                  <i class="fas fa-download"></i>
+                  Descargar PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Schedule View (Right Side) -->
+        <main class="schedule-view">
+          <div class="schedule-header">
+            <h3><i class="fas fa-calendar-week"></i> Vista de Escalas</h3>
+            <div class="schedule-info" id="scheduleInfo">
+              <span class="schedule-dates"></span>
+              <span class="schedule-count"></span>
+            </div>
+          </div>
+          
+          <div class="schedule-content" id="scheduleContent">
+            <!-- Tables will be generated here -->
+          </div>
+        </main>
+      </div>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <h2>Nota</h2>
+        <p><i>Mantener las escalas aseadas nos beneficia a todos. Muchas gracias</i></p>
+      </footer>
     </div>
-    <h2>Nota</h2>
-    <p><i>Mantener las escalas aseadas nos beneficia a todos. Muchas gracias</i></p>
-    <script src="./index.js" 
-    ></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Fallback to old index.js for direct file access -->
+    <script>
+      // Check if we can use modules, otherwise fall back
+      if (window.location.protocol === 'file:') {
+        console.warn('Loading from file system - using fallback version');
+        const script = document.createElement('script');
+        script.src = './index.js';
+        document.head.appendChild(script);
+      } else {
+        // Load modular version
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = './src/app.js';
+        document.head.appendChild(script);
+      }
+    </script>
   </body>
 </html>
