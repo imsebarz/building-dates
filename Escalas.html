@@ -46,6 +46,27 @@
                 <span>Arrastra los apartamentos para cambiar el orden, o usa los botones</span>
               </div>
               <div class="apartment-list" id="apartmentList">
+                <div class="apartment-item" data-apt="201" draggable="true">
+                  <div class="drag-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
+                  <div class="apartment-checkbox">
+                    <input type="checkbox" value="201" checked id="apt-201">
+                    <label for="apt-201">
+                      <i class="fas fa-home"></i>
+                      Apartamento 201
+                    </label>
+                  </div>
+                  <div class="order-controls">
+                    <button type="button" class="order-btn up" data-direction="up" title="Mover arriba">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="order-btn down" data-direction="down" title="Mover abajo">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="position-indicator">1</div>
+                </div>
                 <div class="apartment-item" data-apt="202" draggable="true">
                   <div class="drag-handle">
                     <i class="fas fa-grip-vertical"></i>
@@ -65,7 +86,7 @@
                       <i class="fas fa-chevron-down"></i>
                     </button>
                   </div>
-                  <div class="position-indicator">1</div>
+                  <div class="position-indicator">2</div>
                 </div>
                 <div class="apartment-item" data-apt="301" draggable="true">
                   <div class="drag-handle">
@@ -76,27 +97,6 @@
                     <label for="apt-301">
                       <i class="fas fa-home"></i>
                       Apartamento 301
-                    </label>
-                  </div>
-                  <div class="order-controls">
-                    <button type="button" class="order-btn up" data-direction="up" title="Mover arriba">
-                      <i class="fas fa-chevron-up"></i>
-                    </button>
-                    <button type="button" class="order-btn down" data-direction="down" title="Mover abajo">
-                      <i class="fas fa-chevron-down"></i>
-                    </button>
-                  </div>
-                  <div class="position-indicator">2</div>
-                </div>
-                <div class="apartment-item" data-apt="201" draggable="true">
-                  <div class="drag-handle">
-                    <i class="fas fa-grip-vertical"></i>
-                  </div>
-                  <div class="apartment-checkbox">
-                    <input type="checkbox" value="201" checked id="apt-201">
-                    <label for="apt-201">
-                      <i class="fas fa-home"></i>
-                      Apartamento 201
                     </label>
                   </div>
                   <div class="order-controls">
@@ -173,21 +173,29 @@
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Fallback to old index.js for direct file access -->
+    <!-- Load the main application script directly -->
+    <script src="./index.js"></script>
+    
     <script>
-      // Check if we can use modules, otherwise fall back
-      if (window.location.protocol === 'file:') {
-        console.warn('Loading from file system - using fallback version');
-        const script = document.createElement('script');
-        script.src = './index.js';
-        document.head.appendChild(script);
-      } else {
-        // Load modular version
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = './src/app.js';
-        document.head.appendChild(script);
-      }
+      // Fallback script loading (keeping for compatibility)
+      document.addEventListener('DOMContentLoaded', function() {
+        // Add a small delay to ensure everything is loaded
+        setTimeout(() => {
+          if (!window.scheduleApp) {
+            console.warn('⚠️ ScheduleApp not found, trying alternative loading...');
+            
+            // Try loading the modular version if standalone didn't work
+            if (window.location.protocol !== 'file:') {
+              const moduleScript = document.createElement('script');
+              moduleScript.type = 'module';
+              moduleScript.src = './src/app.js';
+              document.head.appendChild(moduleScript);
+            }
+          } else {
+            console.log('✅ Application loaded successfully');
+          }
+        }, 500);
+      });
     </script>
   </body>
 </html>

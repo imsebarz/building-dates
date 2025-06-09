@@ -22,7 +22,7 @@ const CONFIG = {
  * Manages apartment schedules and date calculations
  */
 class ScheduleManager {
-  constructor(selectedApartments = [301, 202, 201, 302]) {
+  constructor(selectedApartments = [201, 202, 301, 302]) {
     this.apartments = selectedApartments;
   }
 
@@ -76,8 +76,21 @@ class ScheduleManager {
  */
 class UIRenderer {
   constructor() {
+    console.log('🎨 Initializing UIRenderer...');
     this.scheduleContainer = document.getElementById("scheduleContent");
     this.scheduleInfo = document.getElementById('scheduleInfo');
+    
+    if (!this.scheduleContainer) {
+      console.error('❌ scheduleContent element not found!');
+    } else {
+      console.log('✅ scheduleContent element found');
+    }
+    
+    if (!this.scheduleInfo) {
+      console.error('❌ scheduleInfo element not found!');
+    } else {
+      console.log('✅ scheduleInfo element found');
+    }
   }
 
   /**
@@ -264,7 +277,16 @@ class UIRenderer {
  */
 class ApartmentManager {
   constructor() {
+    console.log('🏠 Initializing ApartmentManager...');
     this.apartmentList = document.getElementById('apartmentList');
+    
+    if (!this.apartmentList) {
+      console.error('❌ apartmentList element not found!');
+      return;
+    } else {
+      console.log('✅ apartmentList element found');
+    }
+    
     this.setupEventListeners();
   }
 
@@ -737,25 +759,36 @@ class PDFGenerator {
  */
 class ScheduleApp {
   constructor() {
-    this.scheduleManager = null;
-    this.uiRenderer = new UIRenderer();
-    this.apartmentManager = new ApartmentManager();
-    this.pdfGenerator = new PDFGenerator();
-    this.initializeApp();
+    console.log('🚀 Initializing ScheduleApp...');
+    
+    try {
+      this.scheduleManager = null;
+      this.uiRenderer = new UIRenderer();
+      this.apartmentManager = new ApartmentManager();
+      this.pdfGenerator = new PDFGenerator();
+      this.initializeApp();
+      console.log('✅ All components initialized successfully');
+    } catch (error) {
+      console.error('❌ Error during ScheduleApp construction:', error);
+      throw error;
+    }
   }
 
   /**
    * Initialize the application
    */
   initializeApp() {
+    console.log('🔧 Setting up event listeners and observers...');
     this.setupEventListeners();
     this.setupScrollObserver();
     
     // Make app globally available for apartment manager
     window.scheduleApp = this;
+    console.log('🌐 Made app globally available');
     
     // Generate initial schedule
     setTimeout(() => {
+      console.log('📅 Generating initial schedule...');
       this.generateSchedule();
     }, 100);
   }
@@ -769,6 +802,16 @@ class ScheduleApp {
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
 
+    if (!generateBtn || !downloadBtn || !startDateInput || !endDateInput) {
+      console.error('❌ One or more required elements not found:', {
+        generateBtn: !!generateBtn,
+        downloadBtn: !!downloadBtn,
+        startDateInput: !!startDateInput,
+        endDateInput: !!endDateInput
+      });
+      return;
+    }
+
     generateBtn.addEventListener('click', () => {
       this.addButtonFeedback(generateBtn);
       this.generateSchedule();
@@ -781,6 +824,8 @@ class ScheduleApp {
 
     startDateInput.addEventListener('change', () => this.generateSchedule());
     endDateInput.addEventListener('change', () => this.generateSchedule());
+    
+    console.log('✅ Event listeners set up successfully');
   }
 
   /**
@@ -852,14 +897,30 @@ class ScheduleApp {
 
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  new ScheduleApp();
+  console.log('✅ DOM loaded, initializing ScheduleApp...');
+  try {
+    new ScheduleApp();
+    console.log('✅ ScheduleApp initialized successfully');
+  } catch (error) {
+    console.error('❌ Error initializing ScheduleApp:', error);
+  }
 });
 
 // Fallback initialization for immediate execution
 if (document.readyState !== 'loading') {
+  console.log('✅ Document already loaded, initializing immediately...');
   setTimeout(() => {
     if (!window.scheduleApp) {
-      new ScheduleApp();
+      try {
+        new ScheduleApp();
+        console.log('✅ ScheduleApp fallback initialization successful');
+      } catch (error) {
+        console.error('❌ Error in fallback initialization:', error);
+      }
+    } else {
+      console.log('✅ ScheduleApp already initialized');
     }
   }, 100);
+} else {
+  console.log('⏳ Waiting for DOM to load...');
 }

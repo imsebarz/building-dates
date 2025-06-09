@@ -14,11 +14,23 @@ on:
         options:
         - production
         - staging
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - unit
+        - integration
+        - dom-loading
+        - security
 
 env:
   NODE_VERSION: '18'
 
 jobs:
+  # Comprehensive health check with all our new tests
   health-check:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
@@ -30,14 +42,118 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
       
-      - name: Health check
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Comprehensive health check
         run: |
-          echo "🏥 Performing health check..."
-          npm install
-          npm test
-          echo "✅ Health check completed"
+          echo "🏥 Performing comprehensive health check..."
+          
+          # Run all test suites
+          echo "🧪 Running unit tests..."
+          npm run test:unit
+          
+          echo "🧪 Running integration tests..."
+          npm run test:integration
+          
+          echo "🧪 Running DOM loading detection tests..."
+          npx jest tests/integration/DOMLoadingTests.test.js --verbose
+          
+          echo "🧪 Running apartment structure validation..."
+          npx jest --testNamePattern="apartment.*structure.*integrity" --verbose
+          
+          echo "✅ All health checks completed successfully"
 
+      - name: DOM structure regression test
+        run: |
+          echo "🔍 Running DOM structure regression tests..."
+          
+          # Test for the specific issues we previously experienced
+          node -e "
+          const fs = require('fs');
+          const htmlContent = fs.readFileSync('Escalas.html', 'utf8');
+          
+          // Critical elements that caused our original issues
+          const criticalElements = [
+            'id=\"scheduleContent\"',
+            'id=\"scheduleInfo\"', 
+            'id=\"apartmentList\"',
+            'id=\"generateBtn\"',
+            'id=\"downloadBtn\"',
+            'id=\"startDate\"',
+            'id=\"endDate\"'
+          ];
+          
+          const missing = criticalElements.filter(element => !htmlContent.includes(element));
+          
+          if (missing.length > 0) {
+            console.error('❌ REGRESSION DETECTED: Missing critical elements:', missing);
+            console.error('This indicates the same type of issue we previously fixed!');
+            process.exit(1);
+          }
+          
+          console.log('✅ No DOM structure regression detected');
+          "
+
+      - name: Script loading regression test
+        run: |
+          echo "🔍 Testing script loading patterns..."
+          
+          node -e "
+          const fs = require('fs');
+          const jsContent = fs.readFileSync('index.js', 'utf8');
+          
+          // Check for patterns that prevented initialization
+          const requiredPatterns = [
+            'DOMContentLoaded',
+            'scheduleApp',
+            'class ScheduleManager',
+            'class ApartmentManager',
+            'updatePositionIndicators'
+          ];
+          
+          const missing = requiredPatterns.filter(pattern => !jsContent.includes(pattern));
+          
+          if (missing.length > 0) {
+            console.error('❌ REGRESSION DETECTED: Missing script patterns:', missing);
+            process.exit(1);
+          }
+          
+          console.log('✅ No script loading regression detected');
+          "
+
+      - name: Performance regression test
+        run: |
+          echo "⚡ Running performance regression tests..."
+          
+          # Test build performance
+          time npm run build
+          
+          # Check build output size
+          if [ -d "build" ]; then
+            BUILD_SIZE=$(du -sh build | cut -f1)
+            echo "📊 Build size: $BUILD_SIZE"
+            
+            # Alert if build is unexpectedly large (>5MB)
+            BUILD_SIZE_BYTES=$(du -s build | cut -f1)
+            if [ "$BUILD_SIZE_BYTES" -gt 5000 ]; then
+              echo "⚠️  Warning: Build size seems large ($BUILD_SIZE)"
+            fi
+          fi
+
+      - name: Send health check report
+        if: failure()
+        run: |
+          echo "❌ Health check failed!"
+          echo "This indicates potential regressions in:"
+          echo "- DOM structure"
+          echo "- Script loading"
+          echo "- Core functionality"
+          echo "Review the test output above for specific issues."
+
+  # Manual deployment with comprehensive testing
   manual-deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
@@ -46,7 +162,137 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Manual deployment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run selected test suite
+        run: |
+          echo "🧪 Running ${{ github.event.inputs.test_suite }} test suite..."
+          
+          case "${{ github.event.inputs.test_suite }}" in
+            "full")
+              npm test
+              ;;
+            "unit")
+              npm run test:unit
+              ;;
+            "integration")
+              npm run test:integration
+              ;;
+            "dom-loading")
+              npx jest tests/integration/DOMLoadingTests.test.js --verbose
+              npx jest --testNamePattern="DOM.*elements.*structure" --verbose
+              ;;
+            "security")
+              echo "🔒 Running security-focused tests..."
+              npx jest --testNamePattern="security.*XSS.*eval" --verbose
+              
+              # Additional security checks
+              if grep -r "innerHTML.*\+" . --include="*.js"; then
+                echo "❌ Security issue: innerHTML concatenation detected"
+                exit 1
+              fi
+              
+              if grep -r "eval(" . --include="*.js"; then
+                echo "❌ Security issue: eval() usage detected"
+                exit 1
+              fi
+              
+              echo "✅ Security checks passed"
+              ;;
+            *)
+              echo "Unknown test suite: ${{ github.event.inputs.test_suite }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Pre-deployment validation
+        run: |
+          echo "🔍 Pre-deployment validation for ${{ github.event.inputs.environment }}..."
+          
+          # Run DOM structure validation
+          node -e "
+          const fs = require('fs');
+          const htmlContent = fs.readFileSync('Escalas.html', 'utf8');
+          
+          const criticalElements = [
+            'id=\"scheduleContent\"',
+            'id=\"apartmentList\"',
+            'id=\"generateBtn\"'
+          ];
+          
+          const missing = criticalElements.filter(element => !htmlContent.includes(element));
+          
+          if (missing.length > 0) {
+            console.error('❌ Pre-deployment validation failed:', missing);
+            process.exit(1);
+          }
+          
+          console.log('✅ Pre-deployment validation passed');
+          "
+
+      - name: Manual deployment trigger
         run: |
           echo "🚀 Manual deployment to ${{ github.event.inputs.environment }}"
+          echo "✅ All tests passed - deployment approved"
           echo "This would trigger the main deploy workflow"
+          
+          # In a real scenario, this would trigger the deploy.yml workflow
+          # or call the deployment API directly
+
+  # Weekly dependency and security audit
+  weekly-audit:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Security audit
+        run: |
+          echo "🔒 Running weekly security audit..."
+          
+          # Check for vulnerabilities in dependencies
+          npm audit --audit-level moderate
+          
+          # Check for outdated packages
+          npm outdated || true
+          
+          echo "✅ Security audit completed"
+
+      - name: Code quality check
+        run: |
+          echo "🧹 Running code quality checks..."
+          
+          # Run linting
+          npm run lint || echo "Linting completed with warnings"
+          
+          # Check test coverage
+          npm run test:coverage
+          
+          # Check for TODO comments that might need attention
+          echo "📝 Checking for TODO comments..."
+          grep -r "TODO\|FIXME\|XXX" . --include="*.js" --include="*.html" || echo "No TODO comments found"
+
+      - name: Generate weekly report
+        run: |
+          echo "📊 Weekly Maintenance Report"
+          echo "=========================="
+          echo "Date: $(date)"
+          echo "Health Status: ✅ Healthy"
+          echo "Test Coverage: $(npm run test:coverage --silent 2>&1 | grep -o '[0-9]\+\.[0-9]\+%' | tail -1 || echo 'N/A')"
+          echo "Build Size: $(du -sh build 2>/dev/null | cut -f1 || echo 'N/A')"
+          echo "Last Deployment: $(git log -1 --format='%cd' --date=short)"
+          echo "=========================="

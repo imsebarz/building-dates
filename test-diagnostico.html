@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Diagnóstico de Escalas</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Diagnóstico de la Aplicación Escalas</h1>
+    
+    <div id="status" class="debug">
+        <h3>Estado de la aplicación:</h3>
+        <div id="statusContent">Cargando...</div>
+    </div>
+    
+    <div class="debug">
+        <h3>Pruebas básicas:</h3>
+        <button onclick="testElements()">Verificar Elementos DOM</button>
+        <button onclick="testJavaScript()">Probar JavaScript</button>
+        <button onclick="openMainApp()">Abrir Aplicación Principal</button>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        // Función para mostrar el estado
+        function updateStatus(message, type = 'info') {
+            const content = document.getElementById('statusContent');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            content.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+
+        // Verificar elementos DOM básicos
+        function testElements() {
+            const results = document.getElementById('testResults');
+            let html = '<h4>Resultados de verificación DOM:</h4>';
+            
+            // Lista de elementos que deberían existir en la aplicación principal
+            const requiredElements = [
+                'scheduleContent',
+                'scheduleInfo', 
+                'apartmentList',
+                'generateBtn',
+                'downloadBtn',
+                'startDate',
+                'endDate'
+            ];
+            
+            html += '<ul>';
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                const exists = element !== null;
+                html += `<li style="color: ${exists ? 'green' : 'red'}">
+                    ${id}: ${exists ? '✅ Encontrado' : '❌ No encontrado'}
+                </li>`;
+            });
+            html += '</ul>';
+            
+            results.innerHTML = html;
+        }
+
+        // Probar funcionalidad JavaScript básica
+        function testJavaScript() {
+            const results = document.getElementById('testResults');
+            let html = '<h4>Resultados de pruebas JavaScript:</h4><ul>';
+            
+            try {
+                // Test 1: Crear una fecha
+                const testDate = new Date('2025-06-15');
+                html += `<li style="color: green">✅ Date constructor funciona: ${testDate.toLocaleDateString()}</li>`;
+            } catch (e) {
+                html += `<li style="color: red">❌ Error con Date: ${e.message}</li>`;
+            }
+            
+            try {
+                // Test 2: Query selector
+                const body = document.querySelector('body');
+                html += `<li style="color: green">✅ querySelector funciona</li>`;
+            } catch (e) {
+                html += `<li style="color: red">❌ Error con querySelector: ${e.message}</li>`;
+            }
+            
+            try {
+                // Test 3: Array methods
+                const testArray = [1, 2, 3, 4];
+                const filtered = testArray.filter(x => x > 2);
+                html += `<li style="color: green">✅ Array methods funcionan: [${filtered.join(', ')}]</li>`;
+            } catch (e) {
+                html += `<li style="color: red">❌ Error con Array methods: ${e.message}</li>`;
+            }
+            
+            html += '</ul>';
+            results.innerHTML = html;
+        }
+
+        // Abrir la aplicación principal
+        function openMainApp() {
+            window.open('./Escalas.html', '_blank');
+        }
+
+        // Verificar estado inicial
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus('✅ Página de diagnóstico cargada correctamente', 'success');
+            
+            // Verificar si estamos en protocolo file://
+            if (window.location.protocol === 'file:') {
+                updateStatus('⚠️ Ejecutándose desde file:// - algunas funciones pueden estar limitadas', 'error');
+            } else {
+                updateStatus('✅ Ejecutándose desde servidor HTTP', 'success');
+            }
+        });
+    </script>
+</body>
+</html>

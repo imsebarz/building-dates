@@ -10,8 +10,15 @@ export class ScheduleService {
    * Get all Sundays between start and end date
    */
   static getSundaysInRange(startDate, endDate) {
-    const date = new Date(startDate);
-    const finalDate = new Date(endDate);
+    // Parse dates consistently to avoid timezone issues
+    const parseDate = (dateStr) => {
+      if (dateStr instanceof Date) return new Date(dateStr);
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, day); // month is 0-indexed
+    };
+    
+    const date = parseDate(startDate);
+    const finalDate = parseDate(endDate);
     const sundays = [];
 
     // Move to first Sunday
@@ -19,8 +26,8 @@ export class ScheduleService {
       date.setDate(date.getDate() + 1);
     }
 
-    // Collect all Sundays
-    while (date < finalDate) {
+    // Collect all Sundays (including end date if it's a Sunday)
+    while (date <= finalDate) {
       sundays.push(date.toLocaleDateString(CONFIG.LOCALE, CONFIG.DATE_OPTIONS));
       date.setDate(date.getDate() + 7);
     }
