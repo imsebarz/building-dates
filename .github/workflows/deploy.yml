@@ -65,45 +65,47 @@ jobs:
             exit 1
           fi
 
-      - name: Optimize files for production
+      - name: Build project
         run: |
-          # Create build directory
-          mkdir -p build
-          
-          # Copy main files to build directory
-          cp Escalas.html build/index.html
-          cp style.css build/
-          cp index.js build/
-          cp README.md build/
-          
-          # Copy src directory if exists
-          if [ -d "src" ]; then
-            cp -r src build/
+          # Use the npm build script if available
+          if [ -f package.json ] && npm run build --if-present; then
+            echo "Build completed using npm script"
+          else
+            echo "Building manually..."
+            # Create build directory
+            mkdir -p build
+            
+            # Copy main files to build directory
+            cp Escalas.html build/index.html
+            cp style.css build/
+            cp index.js build/
+            
+            # Copy src directory if exists
+            if [ -d "src" ]; then
+              cp -r src build/
+            fi
+            
+            # Copy any PDF files
+            if [ -f "escaleras.pdf" ]; then
+              cp escaleras.pdf build/
+            fi
+            
+            # Create .nojekyll file to prevent Jekyll processing
+            touch build/.nojekyll
           fi
           
-          # Copy any PDF files
-          if [ -f "escaleras.pdf" ]; then
-            cp escaleras.pdf build/
-          fi
+          # Verify build contents
+          echo "Build directory contents:"
+          ls -la build/
           
-          # Create a proper package.json if it doesn't exist
-          if [ ! -f build/package.json ]; then
-            cat > build/package.json << 'EOF'
-          {
-            "name": "lavada-de-escalas",
-            "version": "1.0.0",
-            "description": "Sistema web para gestionar escalas de limpieza de escaleras",
-            "main": "index.html",
-            "scripts": {
-              "start": "python -m http.server 8000",
-              "dev": "python -m http.server 8000"
-            },
-            "keywords": ["escalas", "limpieza", "edificios", "gestión"],
-            "author": "Sebastian Ruiz",
-            "license": "MIT",
-            "homepage": "https://github.com/tu-usuario/building-dates"
-          }
-          EOF
+          # Verify index.html exists and has content
+          if [ -f "build/index.html" ]; then
+            echo "✅ index.html found"
+            echo "First few lines of index.html:"
+            head -5 build/index.html
+          else
+            echo "❌ index.html not found in build directory!"
+            exit 1
           fi
 
       - name: Setup Pages

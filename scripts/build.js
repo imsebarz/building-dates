@@ -19,7 +19,7 @@ function build() {
     { src: 'Escalas.html', dest: 'index.html' },
     { src: 'style.css', dest: 'style.css' },
     { src: 'index.js', dest: 'index.js' },
-    { src: 'README.md', dest: 'README.md' }
+    { src: 'escaleras.pdf', dest: 'escaleras.pdf' }
   ];
 
   filesToCopy.forEach(({ src, dest }) => {
@@ -37,23 +37,13 @@ function build() {
     console.log('✅ Copied src/ directory');
   }
 
-  // Copy PDF files if they exist
-  const pdfFiles = fs.readdirSync('.').filter(file => file.endsWith('.pdf'));
-  pdfFiles.forEach(file => {
-    fs.copyFileSync(file, path.join(buildDir, file));
-    console.log(`✅ Copied ${file}`);
-  });
-
   // Create optimized package.json for production
   const prodPackageJson = {
     name: "lavada-de-escalas",
     version: "1.0.0",
-    description: "Sistema web para gestionar escalas de limpieza de escaleras",
-    main: "index.html",
-    scripts: {
-      start: "python -m http.server 8000"
-    },
-    keywords: ["escalas", "limpieza", "edificios", "gestión"],
+    description: "Sistema web para gestionar y generar escalas de limpieza de escaleras en edificios residenciales",
+    main: "index.js",
+    homepage: "https://imsebarz.github.io/building-dates/",
     author: "Sebastian Ruiz",
     license: "MIT"
   };
