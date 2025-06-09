@@ -104,7 +104,7 @@ describe('Schedule Model', () => {
         date.setDate(date.getDate() + 7);
       }
       
-      expect(sundayCount).toBe(4); // Corrected: Should be 4 Sundays in June 2025
+      expect(sundayCount).toBe(5); // Corrected: There are 5 Sundays in June 2025 (1, 8, 15, 22, 29)
     });
 
     test('should handle date range with no Sundays', () => {

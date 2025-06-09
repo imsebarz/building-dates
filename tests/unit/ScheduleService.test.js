@@ -32,9 +32,9 @@ describe('ScheduleService', () => {
         date.setDate(date.getDate() + 7);
       }
 
-      expect(sundays.length).toBe(4); // Corrected: Should be 4 Sundays in June 2025
+      expect(sundays.length).toBe(5); // Corrected: There are 5 Sundays in June 2025 (1, 8, 15, 22, 29)
       expect(sundays[0]).toContain('1'); // June 1st
-      expect(sundays[3]).toContain('22'); // June 22nd (last Sunday)
+      expect(sundays[4]).toContain('29'); // June 29th (last Sunday)
     });
 
     test('should handle date range starting mid-week', () => {
@@ -56,7 +56,7 @@ describe('ScheduleService', () => {
         date.setDate(date.getDate() + 7);
       }
 
-      expect(sundays.length).toBe(1); // Corrected: Only 1 Sunday between June 3-15, 2025
+      expect(sundays.length).toBe(2); // Corrected: 2 Sundays between June 3-15, 2025 (June 8 and June 15)
     });
 
     test('should return empty array for range with no Sundays', () => {
@@ -261,7 +261,7 @@ describe('ScheduleService', () => {
         date.setDate(date.getDate() + 7);
       }
       
-      expect(sundays.length).toBe(1); // Corrected: Only 1 Sunday in this specific range
+      expect(sundays.length).toBe(2); // Corrected: 2 Sundays in this range (Dec 28, 2025 and Jan 4, 2026)
     });
 
     test('should handle DST transitions', () => {
